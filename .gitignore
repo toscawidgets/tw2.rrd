@@ -1,0 +1,14 @@
+build
+tw2.jit.egg-info
+*.pyc
+*.swp
+virtualenv-tw2.jit
+tw2core
+tw2devtools
+tw2.devtools
+README.pdf
+dist
+*.egg
+tw2jquery
+tw2forms
+*.db

@@ -1,0 +1,3 @@
+include README.rst
+recursive-include tw2/rrd/templates *
+recursive-include tw2/rrd/static *
