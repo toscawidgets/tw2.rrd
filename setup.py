@@ -18,6 +18,7 @@ setup(
         "tw2.jqplugins.flot",
         "tw2.protovis.conventional",
         "tw2.protovis.custom",
+        "pyrrd",
     ],
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages = ['tw2'],

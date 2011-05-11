@@ -8,7 +8,7 @@ tw2devtools
 tw2.devtools
 README.pdf
 dist
-*.egg
+*.egg*
 tw2jquery
 tw2forms
 *.db
