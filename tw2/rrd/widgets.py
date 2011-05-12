@@ -8,8 +8,6 @@ import tw2.protovis.conventional
 
 import pyrrd.rrd
 
-from rrd_patchup import patched_fetch
-
 import datetime
 import time
 import math
