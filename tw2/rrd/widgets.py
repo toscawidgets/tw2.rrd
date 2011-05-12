@@ -23,6 +23,10 @@ class RRDMixin(twc.Widget):
 
     start = twc.Param("Start as a python datetime")
     end = twc.Param("End as a python datetime")
+    timedelta = twc.Param(
+        "Overridden if `start` and `end` are specified.",
+        default=datetime.timedelta(days=365)
+    )
 
     @classmethod
     def file2name(cls, fname):
@@ -35,7 +39,7 @@ class RRDMixin(twc.Widget):
             cls.end = datetime.datetime.now()
 
         if not hasattr(cls, 'start'):
-            cls.start = cls.end - datetime.timedelta(days=365)
+            cls.start = cls.end - cls.timedelta
 
         if cls.end <= cls.start:
             raise ValueError, "end <= start"
@@ -115,9 +119,6 @@ class RRDMixin(twc.Widget):
 
 class RRDFlotWidget(flot.FlotWidget, RRDMixin):
     data = twc.Variable("Internally produced.")
-
-    end = datetime.datetime.now()
-    start = datetime.datetime.now() - datetime.timedelta(days=365)
 
     options = {
         'xaxis' : {
