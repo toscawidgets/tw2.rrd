@@ -153,8 +153,27 @@ class RRDLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
                 } for d in series['data']
             ] for series in data
         ]
-        print self.p_data[0][0]
         super(RRDLineChart, self).prepare()
+
+class RRDStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
+    p_data = twc.Variable("Internally produced")
+    p_labels = twc.Variable("Internally produced")
+
+    p_time_series = True
+    p_time_series_format = "%b %Y"
+
+    def prepare(self):
+        data = self.fetch()
+        self.p_labels = [d['label'] for d in data]
+        self.p_data = [
+            [
+                {
+                    'x': int(d[0]),
+                    'y': d[1],
+                } for d in series['data']
+            ] for series in data
+        ]
+        super(RRDStackedAreaChart, self).prepare()
 
 class RRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDMixin):
     """ TODO -- this guy needs a lot of work until he looks cool. """
