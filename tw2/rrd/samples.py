@@ -1,5 +1,9 @@
 import tw2.rrd
 
+data_directory = '/'.join(__file__.split('/')[:-1]) + '/data'
 class DemoRRDFlotWidget(tw2.rrd.RRDFlotWidget):
-    rrd_filename = '/home/rjbpop/devel/rc.report/data/rrds/rrds' + \
-            '/Servers/brodie.rc.rit.edu/cpu_user.rrd'
+    rrd_filenames = [
+        data_directory + '/cpu_user.rrd',
+        data_directory + '/cpu_system.rrd',
+        data_directory + '/cpu_wio.rrd',
+    ]
