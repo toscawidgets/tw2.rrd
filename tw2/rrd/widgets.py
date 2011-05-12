@@ -1,6 +1,8 @@
 import tw2.core as twc
 import tw2.core.util as util
-import tw2.jqplugins.flot as flot
+
+import tw2.jit
+import tw2.jqplugins.flot
 import tw2.protovis.custom
 import tw2.protovis.conventional
 
@@ -120,8 +122,27 @@ class RRDMixin(twc.Widget):
             } for i in range(len(data))
         ]
 
+class RRDJitAreaChart(tw2.jit.AreaChart, RRDMixin):
+    data = twc.Variable("Internally produced.")
+    type = 'stacked'
 
-class RRDFlotWidget(flot.FlotWidget, RRDMixin):
+    def prepare(self):
+        self.data = self.fetch()
+        labels = [ series['label'] for series in self.data ]
+
+        values = [{ 'label' : datum[0], 'values' : [] }
+                  for datum in self.data[0]['data']]
+
+        for i in range(len(self.data)):
+            for j in range(len(self.data[i]['data'])):
+                values[j]['values'].append(self.data[i]['data'][j][1])
+
+        self.data = { 'label' : labels, 'values' : values }
+
+        super(RRDJitAreaChart, self).prepare()
+
+
+class RRDFlotWidget(tw2.jqplugins.flot.FlotWidget, RRDMixin):
     data = twc.Variable("Internally produced.")
 
     options = {
