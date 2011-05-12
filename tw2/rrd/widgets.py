@@ -27,6 +27,7 @@ class RRDMixin(twc.Widget):
         "Overridden if `start` and `end` are specified.",
         default=datetime.timedelta(days=365)
     )
+    steps = twc.Param("Number of datapoints to gather.", default=100)
 
     @classmethod
     def file2name(cls, fname):
@@ -34,7 +35,7 @@ class RRDMixin(twc.Widget):
         return fname.split('/')[-1].split('.')[0]
 
     @classmethod
-    def fetch(cls, cf='AVERAGE', steps=100):
+    def fetch(cls, cf='AVERAGE'):
         if not hasattr(cls, 'end'):
             cls.end = datetime.datetime.now()
 
@@ -88,13 +89,14 @@ class RRDMixin(twc.Widget):
         start_s = int(time.mktime(cls.start.timetuple()))
 
         # Convert `steps` to `resolution` (seconds per step)
-        resolution = (end_s - start_s)/steps
+        resolution = (end_s - start_s)/cls.steps
 
         labels = [item[0] for item in rrd_filenames]
         rrds = [pyrrd.rrd.RRD(item[1]) for item in rrd_filenames]
 
         # Query the round robin database
         # TODO -- are there other things to return other than 'sum'?
+        # TODO -- resolution is actually irrelevant.  need to fix that
         data = [d.fetch(cf, resolution, start_s, end_s)['sum'] for d in rrds]
 
         # Convert from 'nan' to 0.
