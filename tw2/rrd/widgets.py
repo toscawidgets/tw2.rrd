@@ -1,6 +1,7 @@
 import tw2.core as twc
 import tw2.core.util as util
 import tw2.jqplugins.flot as flot
+import tw2.protovis.custom
 
 import pyrrd.rrd
 
@@ -132,3 +133,19 @@ class RRDFlotWidget(flot.FlotWidget, RRDMixin):
         # TODO -- can this be moved to post_define?
         self.data = self.fetch()
         super(RRDFlotWidget, self).prepare()
+
+class RRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDMixin):
+    """ TODO -- this guy needs a lot of work until he looks cool. """
+    p_data = twc.Variable("Internally produced")
+    logarithmic = twc.Param("Logscale?  Boolean!", default=False)
+
+    def prepare(self):
+        data = self.fetch()
+        self.p_data = [[item[1] for item in series['data']] for series in data]
+        if self.logarithmic:
+            self.p_data = [
+                [
+                    math.log(value+1) for value in series
+                ] for series in self.p_data
+            ]
+        super(RRDStreamGraph, self).prepare()
