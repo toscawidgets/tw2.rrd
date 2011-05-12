@@ -9,8 +9,14 @@ class DemoRRDFlotWidget(tw2.rrd.RRDFlotWidget):
         data_directory + '/cpu_wio.rrd',
     ]
 
+class DemoRRDLineChart(tw2.rrd.RRDLineChart):
+    rrd_filenames = [
+        data_directory + '/cpu_user.rrd',
+        data_directory + '/cpu_system.rrd',
+        data_directory + '/cpu_wio.rrd',
+    ]
+
 class DemoRRDStreamGraph(tw2.rrd.RRDStreamGraph):
-    steps = 10
     logarithmic = True
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',

@@ -2,6 +2,7 @@ import tw2.core as twc
 import tw2.core.util as util
 import tw2.jqplugins.flot as flot
 import tw2.protovis.custom
+import tw2.protovis.conventional
 
 import pyrrd.rrd
 
@@ -134,8 +135,30 @@ class RRDFlotWidget(flot.FlotWidget, RRDMixin):
         self.data = self.fetch()
         super(RRDFlotWidget, self).prepare()
 
+class RRDLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
+    p_data = twc.Variable("Internally produced")
+    p_labels = twc.Variable("Internally produced")
+
+    p_time_series = True
+    p_time_series_format = "%b %Y"
+
+    def prepare(self):
+        data = self.fetch()
+        self.p_labels = [d['label'] for d in data]
+        self.p_data = [
+            [
+                {
+                    'x': int(d[0]),
+                    'y': d[1],
+                } for d in series['data']
+            ] for series in data
+        ]
+        print self.p_data[0][0]
+        super(RRDLineChart, self).prepare()
+
 class RRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDMixin):
     """ TODO -- this guy needs a lot of work until he looks cool. """
+
     p_data = twc.Variable("Internally produced")
     logarithmic = twc.Param("Logscale?  Boolean!", default=False)
 
