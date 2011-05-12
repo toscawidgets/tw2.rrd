@@ -9,14 +9,14 @@ class DemoRRDFlotWidget(tw2.rrd.RRDFlotWidget):
         data_directory + '/cpu_wio.rrd',
     ]
 
-class DemoRRDLineChart(tw2.rrd.RRDLineChart):
+class DemoRRDProtoLineChart(tw2.rrd.RRDProtoLineChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',
         data_directory + '/cpu_wio.rrd',
     ]
 
-class DemoRRDStackedAreaChart(tw2.rrd.RRDStackedAreaChart):
+class DemoRRDProtoStackedAreaChart(tw2.rrd.RRDProtoStackedAreaChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',

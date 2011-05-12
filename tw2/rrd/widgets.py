@@ -135,7 +135,7 @@ class RRDFlotWidget(flot.FlotWidget, RRDMixin):
         self.data = self.fetch()
         super(RRDFlotWidget, self).prepare()
 
-class RRDLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
+class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")
 
@@ -153,9 +153,9 @@ class RRDLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
                 } for d in series['data']
             ] for series in data
         ]
-        super(RRDLineChart, self).prepare()
+        super(RRDProtoLineChart, self).prepare()
 
-class RRDStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
+class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")
 
@@ -173,7 +173,7 @@ class RRDStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
                 } for d in series['data']
             ] for series in data
         ]
-        super(RRDStackedAreaChart, self).prepare()
+        super(RRDProtoStackedAreaChart, self).prepare()
 
 class RRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDMixin):
     """ TODO -- this guy needs a lot of work until he looks cool. """
