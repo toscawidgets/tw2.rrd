@@ -12,7 +12,10 @@ class DemoRRDJitAreaChart(tw2.rrd.RRDJitAreaChart):
         data_directory + '/cpu_system.rrd',
     ]
     steps = 25
-    timedelta = datetime.timedelta(days=60)
+    timedelta = datetime.timedelta(days=90)
+    width="400px"
+    height="250px"
+    offset = 0
 
     showAggregates = False
     showLabels = False
