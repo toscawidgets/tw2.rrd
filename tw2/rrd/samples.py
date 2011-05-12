@@ -1,6 +1,8 @@
 import tw2.core as twc
 import tw2.rrd
 
+import datetime
+
 data_directory = '/'.join(__file__.split('/')[:-1]) + '/data'
 
 class DemoRRDJitAreaChart(tw2.rrd.RRDJitAreaChart):
@@ -10,6 +12,7 @@ class DemoRRDJitAreaChart(tw2.rrd.RRDJitAreaChart):
         data_directory + '/cpu_system.rrd',
     ]
     steps = 25
+    timedelta = datetime.timedelta(days=60)
 
     showAggregates = False
     showLabels = False

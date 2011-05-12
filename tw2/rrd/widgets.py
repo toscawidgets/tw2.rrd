@@ -8,6 +8,8 @@ import tw2.protovis.conventional
 
 import pyrrd.rrd
 
+from rrd_patchup import patched_fetch
+
 import datetime
 import time
 import math
@@ -93,17 +95,20 @@ class RRDMixin(twc.Widget):
         start_s = int(time.mktime(cls.start.timetuple()))
 
         # Convert `steps` to `resolution` (seconds per step)
-        resolution = 1000*(end_s - start_s)/cls.steps
-        print cls.steps, resolution
+        resolution = (end_s - start_s)/cls.steps
+
+        # According to the rrdfetch manpage, the start and end times must be
+        # multiples of the resolution.  See *RESOLUTION INTERVAL*.
+        start_s = start_s / resolution * resolution
+        end_s = end_s / resolution * resolution
 
         labels = [item[0] for item in rrd_filenames]
         rrds = [pyrrd.rrd.RRD(item[1]) for item in rrd_filenames]
 
         # Query the round robin database
         # TODO -- are there other things to return other than 'sum'?
-        # TODO -- resolution is actually irrelevant.  need to fix that
-        data = [d.fetch(cf, resolution, start_s, end_s)['sum'] for d in rrds]
-        print len(data[0])
+        data = [d.fetch(cf=cf, resolution=resolution,
+                        start=start_s, end=end_s)['sum'] for d in rrds]
 
         # Convert from 'nan' to 0.
         for i in range(len(data)):
