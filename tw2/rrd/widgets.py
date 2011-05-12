@@ -93,7 +93,8 @@ class RRDMixin(twc.Widget):
         start_s = int(time.mktime(cls.start.timetuple()))
 
         # Convert `steps` to `resolution` (seconds per step)
-        resolution = (end_s - start_s)/cls.steps
+        resolution = 1000*(end_s - start_s)/cls.steps
+        print cls.steps, resolution
 
         labels = [item[0] for item in rrd_filenames]
         rrds = [pyrrd.rrd.RRD(item[1]) for item in rrd_filenames]
@@ -102,6 +103,7 @@ class RRDMixin(twc.Widget):
         # TODO -- are there other things to return other than 'sum'?
         # TODO -- resolution is actually irrelevant.  need to fix that
         data = [d.fetch(cf, resolution, start_s, end_s)['sum'] for d in rrds]
+        print len(data[0])
 
         # Convert from 'nan' to 0.
         for i in range(len(data)):
