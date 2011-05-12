@@ -28,9 +28,6 @@ class RRDMixin(twc.Widget):
 
         rrd = pyrrd.rrd.RRD(cls.rrd_filename)
 
-        # TODO -- is this necessary?
-        rrd.load(cls.rrd_filename, include_data=True)
-
         # Convert to seconds since the epoch
         end_s = int(time.mktime(cls.end.timetuple()))
         start_s = int(time.mktime(cls.start.timetuple()))
