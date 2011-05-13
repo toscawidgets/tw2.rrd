@@ -184,11 +184,25 @@ class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
 class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")
+    method = twc.Param(
+        "Method for consolidating values.  Either 'sum' or 'average'",
+        default='average')
 
     def prepare(self):
         data = self.fetch()
         self.p_labels = [series['label'] for series in data]
-        self.p_data = [sum([d[1] for d in series['data']]) for series in data]
+        if not self.method in ['sum', 'average']:
+            raise ValueError, "Illegal value '%s' for method" % self.method
+        if self.method == 'sum':
+            self.p_data = [
+                sum([d[1] for d in series['data']])
+                for series in data
+            ]
+        elif self.method == 'average':
+            self.p_data = [
+                sum([d[1] for d in series['data']])/len(series['data'])
+                for series in data
+            ]
         super(RRDProtoBarChart, self).prepare()
 
 
