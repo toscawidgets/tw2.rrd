@@ -181,6 +181,17 @@ class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
         ]
         super(RRDProtoLineChart, self).prepare()
 
+class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
+    p_data = twc.Variable("Internally produced")
+    p_labels = twc.Variable("Internally produced")
+
+    def prepare(self):
+        data = self.fetch()
+        self.p_labels = [series['label'] for series in data]
+        self.p_data = [sum([d[1] for d in series['data']]) for series in data]
+        super(RRDProtoBarChart, self).prepare()
+
+
 class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")

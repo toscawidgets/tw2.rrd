@@ -40,6 +40,13 @@ class DemoRRDFlotWidget(tw2.rrd.RRDFlotWidget):
         data_directory + '/cpu_wio.rrd',
     ]
 
+class DemoRRDProtoBarChart(tw2.rrd.RRDProtoBarChart):
+    rrd_filenames = [
+        data_directory + '/cpu_user.rrd',
+        data_directory + '/cpu_system.rrd',
+        data_directory + '/cpu_wio.rrd',
+    ]
+
 class DemoRRDProtoLineChart(tw2.rrd.RRDProtoLineChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
