@@ -139,7 +139,7 @@ class RRDJitAreaChart(tw2.jit.AreaChart, RRDMixin):
                   for datum in self.data[0]['data']]
 
         for i in range(len(self.data)):
-            for j in range(len(self.data[i]['data'])):
+            for j in range(len(self.data[0]['data'])):
                 values[j]['values'].append(self.data[i]['data'][j][1])
 
         self.data = { 'label' : labels, 'values' : values }
