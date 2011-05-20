@@ -237,6 +237,10 @@ class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
                     ])/len(series['data'])
                 } for series in data
             ]
+
+        # Remove all zero-valued bubbles!  (They don't make sense...)
+        self.p_data = [d for d in self.p_data if d['value'] != 0]
+
         super(RRDProtoBubbleChart, self).prepare()
 
 class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
