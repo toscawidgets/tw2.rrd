@@ -184,6 +184,7 @@ class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
 class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
     series_sorter = twc.Param("function to compare to data points for sorting",
                               default=None)
+    prune_zeroes = twc.Param("hide zero-valued series?", default=False)
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")
     method = twc.Param(
@@ -211,6 +212,13 @@ class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
                 sum([d[1] for d in series['data']])/len(series['data'])
                 for series in data
             ]
+
+        # Remove all zero-valued bubbles?
+        if self.hide_zeroes:
+            together = zip(self.p_data, self.p_labels)
+            together = [t for t in together if t[0] != 0]
+            self.p_data, self.p_labels = [list(t) for t in zip(*together)]
+
         super(RRDProtoBarChart, self).prepare()
 
 class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
