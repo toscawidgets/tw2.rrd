@@ -47,12 +47,23 @@ class DemoRRDProtoBarChart(tw2.rrd.RRDProtoBarChart):
         data_directory + '/cpu_wio.rrd',
     ]
 
+    def series_sorter(self, x, y):
+        """ Sort by total value """
+        return -1 * cmp(
+            sum([d[1] for d in x['data']]),
+            sum([d[1] for d in y['data']])
+        )
+
+
 class DemoRRDProtoBubbleChart(tw2.rrd.RRDProtoBubbleChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',
         data_directory + '/cpu_wio.rrd',
     ]
+
+    # Sort alphabetically
+    series_sorter = lambda self, x, y : cmp(x['label'], y['label'])
 
 class DemoRRDProtoLineChart(tw2.rrd.RRDProtoLineChart):
     rrd_filenames = [

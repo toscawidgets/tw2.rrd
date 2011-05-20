@@ -182,6 +182,8 @@ class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
         super(RRDProtoLineChart, self).prepare()
 
 class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
+    series_sorter = twc.Param("function to compare to data points for sorting",
+                              default=None)
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")
     method = twc.Param(
@@ -190,9 +192,15 @@ class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
 
     def prepare(self):
         data = self.fetch()
-        self.p_labels = [series['label'] for series in data]
+
+        if self.sort_data:
+            data.sort(self.series_sorter)
+
         if not self.method in ['sum', 'average']:
             raise ValueError, "Illegal value '%s' for method" % self.method
+
+        self.p_labels = [series['label'] for series in data]
+
         if self.method == 'sum':
             self.p_data = [
                 sum([d[1] for d in series['data']])
@@ -206,6 +214,8 @@ class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
         super(RRDProtoBarChart, self).prepare()
 
 class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
+    series_sorter = twc.Param("function to compare to data points for sorting",
+                              default=None)
     p_data = twc.Variable("Internally produced")
     method = twc.Param(
         "Method for consolidating values.  Either 'sum' or 'average'",
@@ -213,8 +223,13 @@ class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
 
     def prepare(self):
         data = self.fetch()
+
+        if self.sort_data:
+            data.sort(self.series_sorter)
+
         if not self.method in ['sum', 'average']:
             raise ValueError, "Illegal value '%s' for method" % self.method
+
         if self.method == 'sum':
             self.p_data = [
                 {
