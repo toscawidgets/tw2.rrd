@@ -205,6 +205,39 @@ class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
             ]
         super(RRDProtoBarChart, self).prepare()
 
+class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
+    p_data = twc.Variable("Internally produced")
+    method = twc.Param(
+        "Method for consolidating values.  Either 'sum' or 'average'",
+        default='average')
+
+    def prepare(self):
+        data = self.fetch()
+        if not self.method in ['sum', 'average']:
+            raise ValueError, "Illegal value '%s' for method" % self.method
+        if self.method == 'sum':
+            self.p_data = [
+                {
+                    'name' : series['label'],
+                    'text' : series['label'],
+                    'group' : series['label'],
+                    'value' : sum([
+                        d[1] for d in series['data']
+                    ])/len(series['data'])
+                } for series in data
+            ]
+        elif self.method == 'average':
+            self.p_data = [
+                {
+                    'name' : series['label'],
+                    'text' : series['label'],
+                    'group' : series['label'],
+                    'value' : sum([
+                        d[1] for d in series['data']
+                    ])/len(series['data'])
+                } for series in data
+            ]
+        super(RRDProtoBubbleChart, self).prepare()
 
 class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
     p_data = twc.Variable("Internally produced")

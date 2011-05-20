@@ -47,6 +47,13 @@ class DemoRRDProtoBarChart(tw2.rrd.RRDProtoBarChart):
         data_directory + '/cpu_wio.rrd',
     ]
 
+class DemoRRDProtoBubbleChart(tw2.rrd.RRDProtoBubbleChart):
+    rrd_filenames = [
+        data_directory + '/cpu_user.rrd',
+        data_directory + '/cpu_system.rrd',
+        data_directory + '/cpu_wio.rrd',
+    ]
+
 class DemoRRDProtoLineChart(tw2.rrd.RRDProtoLineChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
