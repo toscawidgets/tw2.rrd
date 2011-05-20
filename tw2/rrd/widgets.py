@@ -238,7 +238,7 @@ class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
                     'group' : series['label'],
                     'value' : sum([
                         d[1] for d in series['data']
-                    ])/len(series['data'])
+                    ]),
                 } for series in data
             ]
         elif self.method == 'average':
@@ -249,7 +249,7 @@ class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
                     'group' : series['label'],
                     'value' : sum([
                         d[1] for d in series['data']
-                    ])/len(series['data'])
+                    ])/len(series['data']),
                 } for series in data
             ]
 
