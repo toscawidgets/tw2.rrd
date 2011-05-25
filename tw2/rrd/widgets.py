@@ -33,6 +33,10 @@ class RRDMixin(twc.Widget):
     )
     steps = twc.Param("Number of datapoints to gather.", default=100)
     hide_zeroes = twc.Param("Strip zero-valued series?", default=True)
+    consolidation_function = twc.Param(
+        "rrdtool consolidation function to use.", default='AVERAGE')
+    datasource_name = twc.Param(
+        "rrdtool datasource name to use.", default='sum')
 
     @classmethod
     def file2name(cls, fname):
@@ -40,7 +44,7 @@ class RRDMixin(twc.Widget):
         return fname.split('/')[-1].split('.')[0]
 
     @classmethod
-    def fetch(cls, cf='AVERAGE'):
+    def fetch(cls):
         if not hasattr(cls, 'end'):
             cls.end = datetime.datetime.now()
 
@@ -105,9 +109,14 @@ class RRDMixin(twc.Widget):
         rrds = [pyrrd.rrd.RRD(item[1]) for item in rrd_filenames]
 
         # Query the round robin database
-        # TODO -- are there other things to return other than 'sum'?
-        data = [d.fetch(cf=cf, resolution=resolution,
-                        start=start_s, end=end_s)['sum'] for d in rrds]
+        data = [
+            d.fetch(
+                cf=cls.consolidation_function,
+                resolution=resolution,
+                start=start_s,
+                end=end_s
+            )[cls.datasource_name] for d in rrds
+        ]
 
         # Convert from 'nan' to 0.
         for i in range(len(data)):
