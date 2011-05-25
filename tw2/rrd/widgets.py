@@ -131,7 +131,7 @@ class RRDMixin(twc.Widget):
                 data_point[1] for data_point in t[0]
             ]) != 0]
             if len(together) != 0:
-                values, labels = [list(t) for t in zip(*together)]
+                data, labels = [list(t) for t in zip(*together)]
 
         # Coerce from seconds to milliseconds  Unix-time is in seconds.
         # *Most* javascript stuff expects milliseconds.
