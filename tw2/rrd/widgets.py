@@ -32,6 +32,7 @@ class RRDMixin(twc.Widget):
         default=datetime.timedelta(days=365)
     )
     steps = twc.Param("Number of datapoints to gather.", default=100)
+    hide_zeroes = twc.Param("Strip zero-valued series?", default=True)
 
     @classmethod
     def file2name(cls, fname):
@@ -113,6 +114,15 @@ class RRDMixin(twc.Widget):
             for j in range(len(data[i])):
                 if math.isnan(data[i][j][1]):
                     data[i][j] = (data[i][j][0], 0)
+
+        # Remove all zero-valued series?
+        if cls.hide_zeroes:
+            together = zip(data, labels)
+            together = [t for t in together if sum([
+                data_point[1] for data_point in t[0]
+            ]) != 0]
+            if len(together) != 0:
+                values, labels = [list(t) for t in zip(*together)]
 
         # Coerce from seconds to milliseconds  Unix-time is in seconds.
         # *Most* javascript stuff expects milliseconds.
@@ -213,12 +223,6 @@ class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
                 for series in data
             ]
 
-        # Remove all zero-valued bubbles?
-        if self.hide_zeroes:
-            together = zip(self.p_data, self.p_labels)
-            together = [t for t in together if t[0] != 0]
-            self.p_data, self.p_labels = [list(t) for t in zip(*together)]
-
         super(RRDProtoBarChart, self).prepare()
 
 class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
@@ -284,6 +288,7 @@ class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMi
                 } for d in series['data']
             ] for series in data
         ]
+
         super(RRDProtoStackedAreaChart, self).prepare()
 
 class RRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDMixin):
