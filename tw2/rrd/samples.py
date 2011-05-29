@@ -1,13 +1,15 @@
 import tw2.core as twc
 import tw2.rrd
 
+import sys
 import datetime
 
-data_directory = '/'.join(__file__.split('/')[:-1]) + '/data'
+arch = ['32', '64'][sys.maxsize > 2**32]
+data_directory = '/'.join(__file__.split('/')[:-1] + ['data', arch])
 
-class DemoDirectoryRRDJitBarChart(tw2.rrd.DirectoryRRDJitBarChart):
+class DemoNestedRRDJitBarChart(tw2.rrd.NestedRRDJitBarChart):
     rrd_directories = [
-        data_directory + 'directories/filename/' + country
+        data_directory + 'nested/filename/' + country
         for country in [
             'Brazil/',
             'Canada/',
@@ -34,9 +36,9 @@ class DemoDirectoryRRDJitBarChart(tw2.rrd.DirectoryRRDJitBarChart):
 
 class DemoFlatRRDJitAreaChart(tw2.rrd.FlatRRDJitAreaChart):
     rrd_filenames = [
-        data_directory + '/cpu_user.rrd',
-        data_directory + '/cpu_wio.rrd',
-        data_directory + '/cpu_system.rrd',
+        data_directory + '/flat/cpu_user.rrd',
+        data_directory + '/flat/cpu_wio.rrd',
+        data_directory + '/flat/cpu_system.rrd',
     ]
     steps = 25
     timedelta = datetime.timedelta(days=90)
@@ -62,16 +64,16 @@ class DemoFlatRRDJitAreaChart(tw2.rrd.FlatRRDJitAreaChart):
 
 class DemoFlatRRDFlotWidget(tw2.rrd.FlatRRDFlotWidget):
     rrd_filenames = [
-        data_directory + '/cpu_user.rrd',
-        data_directory + '/cpu_system.rrd',
-        data_directory + '/cpu_wio.rrd',
+        data_directory + '/flat/cpu_user.rrd',
+        data_directory + '/flat/cpu_system.rrd',
+        data_directory + '/flat/cpu_wio.rrd',
     ]
 
 class DemoFlatRRDProtoBarChart(tw2.rrd.FlatRRDProtoBarChart):
     rrd_filenames = [
-        data_directory + '/cpu_user.rrd',
-        data_directory + '/cpu_system.rrd',
-        data_directory + '/cpu_wio.rrd',
+        data_directory + '/flat/cpu_user.rrd',
+        data_directory + '/flat/cpu_system.rrd',
+        data_directory + '/flat/cpu_wio.rrd',
     ]
 
     def series_sorter(self, x, y):
@@ -84,9 +86,9 @@ class DemoFlatRRDProtoBarChart(tw2.rrd.FlatRRDProtoBarChart):
 
 class DemoFlatRRDProtoBubbleChart(tw2.rrd.FlatRRDProtoBubbleChart):
     rrd_filenames = [
-        data_directory + '/cpu_user.rrd',
-        data_directory + '/cpu_system.rrd',
-        data_directory + '/cpu_wio.rrd',
+        data_directory + '/flat/cpu_user.rrd',
+        data_directory + '/flat/cpu_system.rrd',
+        data_directory + '/flat/cpu_wio.rrd',
     ]
 
     # Sort alphabetically
@@ -94,22 +96,22 @@ class DemoFlatRRDProtoBubbleChart(tw2.rrd.FlatRRDProtoBubbleChart):
 
 class DemoFlatRRDProtoLineChart(tw2.rrd.FlatRRDProtoLineChart):
     rrd_filenames = [
-        data_directory + '/cpu_user.rrd',
-        data_directory + '/cpu_system.rrd',
-        data_directory + '/cpu_wio.rrd',
+        data_directory + '/flat/cpu_user.rrd',
+        data_directory + '/flat/cpu_system.rrd',
+        data_directory + '/flat/cpu_wio.rrd',
     ]
 
 class DemoFlatRRDProtoStackedAreaChart(tw2.rrd.FlatRRDProtoStackedAreaChart):
     rrd_filenames = [
-        data_directory + '/cpu_user.rrd',
-        data_directory + '/cpu_system.rrd',
-        data_directory + '/cpu_wio.rrd',
+        data_directory + '/flat/cpu_user.rrd',
+        data_directory + '/flat/cpu_system.rrd',
+        data_directory + '/flat/cpu_wio.rrd',
     ]
 
 class DemoFlatRRDStreamGraph(tw2.rrd.FlatRRDStreamGraph):
     logarithmic = True
     rrd_filenames = [
-        data_directory + '/cpu_user.rrd',
-        data_directory + '/cpu_system.rrd',
-        data_directory + '/cpu_wio.rrd',
+        data_directory + '/flat/cpu_user.rrd',
+        data_directory + '/flat/cpu_system.rrd',
+        data_directory + '/flat/cpu_wio.rrd',
     ]
