@@ -5,7 +5,34 @@ import datetime
 
 data_directory = '/'.join(__file__.split('/')[:-1]) + '/data'
 
-class DemoRRDJitAreaChart(tw2.rrd.RRDJitAreaChart):
+class DemoDirectoryRRDJitBarChart(tw2.rrd.DirectoryRRDJitBarChart):
+    rrd_directories = [
+        data_directory + 'directories/filename/' + country
+        for country in [
+            'Brazil/',
+            'Canada/',
+            'China/',
+            'France/',
+            'Germany/',
+            'Greece/',
+            'India/',
+            'Italy/',
+            'Malaysia/',
+            'Mexico/',
+            'Peru/',
+            'Puerto_Rico/',
+            'Russian_Federation/',
+            'Singapore/',
+            'Spain/',
+            'Sweden/',
+            'Turkey/',
+            'Ukraine/',
+            'United_Kingdom/',
+            'United_States/',
+        ]
+    ]
+
+class DemoFlatRRDJitAreaChart(tw2.rrd.FlatRRDJitAreaChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_wio.rrd',
@@ -33,14 +60,14 @@ class DemoRRDJitAreaChart(tw2.rrd.RRDJitAreaChart):
     }
 
 
-class DemoRRDFlotWidget(tw2.rrd.RRDFlotWidget):
+class DemoFlatRRDFlotWidget(tw2.rrd.FlatRRDFlotWidget):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',
         data_directory + '/cpu_wio.rrd',
     ]
 
-class DemoRRDProtoBarChart(tw2.rrd.RRDProtoBarChart):
+class DemoFlatRRDProtoBarChart(tw2.rrd.FlatRRDProtoBarChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',
@@ -55,7 +82,7 @@ class DemoRRDProtoBarChart(tw2.rrd.RRDProtoBarChart):
         )
 
 
-class DemoRRDProtoBubbleChart(tw2.rrd.RRDProtoBubbleChart):
+class DemoFlatRRDProtoBubbleChart(tw2.rrd.FlatRRDProtoBubbleChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',
@@ -65,21 +92,21 @@ class DemoRRDProtoBubbleChart(tw2.rrd.RRDProtoBubbleChart):
     # Sort alphabetically
     series_sorter = lambda self, x, y : cmp(x['label'], y['label'])
 
-class DemoRRDProtoLineChart(tw2.rrd.RRDProtoLineChart):
+class DemoFlatRRDProtoLineChart(tw2.rrd.FlatRRDProtoLineChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',
         data_directory + '/cpu_wio.rrd',
     ]
 
-class DemoRRDProtoStackedAreaChart(tw2.rrd.RRDProtoStackedAreaChart):
+class DemoFlatRRDProtoStackedAreaChart(tw2.rrd.FlatRRDProtoStackedAreaChart):
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',
         data_directory + '/cpu_system.rrd',
         data_directory + '/cpu_wio.rrd',
     ]
 
-class DemoRRDStreamGraph(tw2.rrd.RRDStreamGraph):
+class DemoFlatRRDStreamGraph(tw2.rrd.FlatRRDStreamGraph):
     logarithmic = True
     rrd_filenames = [
         data_directory + '/cpu_user.rrd',

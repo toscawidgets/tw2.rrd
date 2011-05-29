@@ -13,17 +13,8 @@ import time
 import math
 import os
 
-class RRDMixin(twc.Widget):
-    rrd_filenames = twc.Param(
-        """ A collection of rrd_filesnames.
-
-        This can be of the following forms::
-
-            - A list of .rrd filenames.
-            - A list of (label, filename) tuples.
-
-        If no labels are specified, tw2.core.util.name2label is used.
-        """)
+class RRDBaseMixin(twc.Widget):
+    """ Baseclass for RRD Mixins.  Should not be used directly. """
 
     start = twc.Param("Start as a python datetime")
     end = twc.Param("End as a python datetime")
@@ -39,12 +30,7 @@ class RRDMixin(twc.Widget):
         "rrdtool datasource name to use.", default='sum')
 
     @classmethod
-    def file2name(cls, fname):
-        """ Convert a filename to an `attribute` name """
-        return fname.split('/')[-1].split('.')[0]
-
-    @classmethod
-    def fetch(cls):
+    def sanity(cls):
         if not hasattr(cls, 'end'):
             cls.end = datetime.datetime.now()
 
@@ -54,45 +40,19 @@ class RRDMixin(twc.Widget):
         if cls.end <= cls.start:
             raise ValueError, "end <= start"
 
-        if type(cls.rrd_filenames) != list:
-            raise ValueError, "rrd_filenames must be a list"
+    @classmethod
+    def file2name(cls, fname):
+        """ Convert a filename to an `attribute` name """
+        return fname.split('/')[-1].split('.')[0]
 
-        if not cls.rrd_filenames:
-            raise ValueError, "rrd_filenames is empty"
+    @classmethod
+    def directory2name(cls, dname):
+        """ Convert a filename to an `attribute` name """
+        return dname.split('/')[-1]
 
-        types = [type(item) for item in cls.rrd_filenames]
-        if len(list(set(types))) != 1:
-            raise ValueError, "rrd_filenames must be of homogeneous form"
-
-        _type = types[0]
-        if _type not in [str, tuple]:
-            raise ValueError, "rrd_filenames items must be 'str' or 'tuple'"
-
-        rrd_filenames = cls.rrd_filenames
-        if _type == str:
-            rrd_filenames = [
-                (util.name2label(cls.file2name(f)), f) for f in rrd_filenames
-            ]
-
-        lens = [len(item) for item in rrd_filenames]
-        if len(list(set(lens))) != 1:
-            raise ValueError, "rrd_filenames items must be of the same length"
-
-        _len = lens[0]
-        if _len != 2:
-            raise ValueError, "rrd_filenames items must be of length 2"
-
-        for item in rrd_filenames:
-            if not os.path.exists(item[1]):
-                raise ValueError, "rrd_filename %s does not exist." % item[1]
-            if not os.path.isfile(item[1]):
-                raise ValueError, "rrd_filename %s is not a file." % item[1]
-
-        ###################################
-        # Done error checking.
-        # Now we can actually get the data.
-        ###################################
-
+    @classmethod
+    def _do_flat_fetch(cls, rrd_filenames):
+        ###print "doing work on:", rrd_filenames
         # Convert to seconds since the epoch
         end_s = int(time.mktime(cls.end.timetuple()))
         start_s = int(time.mktime(cls.start.timetuple()))
@@ -146,12 +106,142 @@ class RRDMixin(twc.Widget):
             } for i in range(len(data))
         ]
 
-class RRDJitAreaChart(tw2.jit.AreaChart, RRDMixin):
+class RRDFlatMixin(RRDBaseMixin):
+    rrd_filenames = twc.Param(
+        """ A collection of rrd_filesnames.
+
+        This can be of the following forms::
+
+            - A list of .rrd filenames.
+            - A list of (label, filename) tuples.
+
+        If no labels are specified, tw2.core.util.name2label is used.
+        """)
+
+    @classmethod
+    def flat_fetch(cls):
+        cls.sanity()
+
+        if type(cls.rrd_filenames) != list:
+            raise ValueError, "rrd_filenames must be a list"
+
+        if not cls.rrd_filenames:
+            raise ValueError, "rrd_filenames is empty"
+
+        types = [type(item) for item in cls.rrd_filenames]
+        if len(list(set(types))) != 1:
+            raise ValueError, "rrd_filenames must be of homogeneous form"
+
+        _type = types[0]
+        if _type not in [str, tuple]:
+            raise ValueError, "rrd_filenames items must be 'str' or 'tuple'"
+
+        rrd_filenames = cls.rrd_filenames
+        if _type == str:
+            rrd_filenames = [
+                (util.name2label(cls.file2name(f)), f) for f in rrd_filenames
+            ]
+
+        lens = [len(item) for item in rrd_filenames]
+        if len(list(set(lens))) != 1:
+            raise ValueError, "rrd_filenames items must be of the same length"
+
+        _len = lens[0]
+        if _len != 2:
+            raise ValueError, "rrd_filenames items must be of length 2"
+
+        for item in rrd_filenames:
+            if not os.path.exists(item[1]):
+                raise ValueError, "rrd_filename %s does not exist." % item[1]
+            if not os.path.isfile(item[1]):
+                raise ValueError, "rrd_filename %s is not a file." % item[1]
+
+        ###################################
+        # Done error checking.
+        # Now we can actually get the data.
+        ###################################
+
+        ###print "Singleton...."
+        return cls._do_flat_fetch(rrd_filenames)
+
+
+class RRDNestedMixin(RRDBaseMixin):
+    rrd_directories = twc.Param(
+        """ A collection of rrd_directories.
+
+        This can be of the following form::
+
+            - A list of directories containing .rrd files.
+        """)
+
+    def directory_fetch(self):
+        cls.sanity()
+
+        if type(cls.rrd_directories) != list:
+            raise ValueError, "rrd_directories must be a list"
+
+        if not cls.rrd_directories:
+            raise ValueError, "rrd_directories is empty"
+
+        types = [type(item) for item in cls.rrd_directories]
+        if len(list(set(types))) != 1:
+            raise ValueError, "rrd_directories must be of homogeneous form"
+
+        _type = types[0]
+        if not isinstance(_type, str):
+            raise ValueError, "rrd_directories items must be 'str'"
+
+        rrd_directories = cls.rrd_directories
+        if _type == str:
+            rrd_directories = [
+                (util.name2label(cls.directory2name(d)), d)
+                for d in rrd_directories
+            ]
+
+        lens = [len(item) for item in rrd_directories]
+        if len(list(set(lens))) != 1:
+            raise ValueError, "rrd_directories items must be of the same length"
+
+        _len = lens[0]
+        if _len != 2:
+            raise ValueError, "rrd_directories items must be of length 2"
+
+        for item in rrd_directories:
+            if not os.path.exists(item[1]):
+                raise ValueError, "rrd_directory %s does not exist." % item[1]
+            if not os.path.isdir(item[1]):
+                raise ValueError, "rrd_directory %s is not a file." % item[1]
+
+        ###################################
+        # Done error checking.
+        # Now we can actually get the data.
+        ###################################
+
+        labels = [item[0] for item in rrd_directories]
+        data = []
+        for directory in rrd_directories:
+            ###print "Nested:", dir
+            rrd_filenames = [
+                directory + fname for fname in os.path.listdir(directory)
+                if fname.endswith('.rrd')
+            ]
+            data.append(cls._do_flat_fetch(rrd_filenames))
+
+        # Wrap up the output into a list of dicts
+        return [
+            {
+                'data' : data[i],
+                'label' : labels[i],
+            } for i in range(len(data))
+        ]
+
+
+class FlatRRDJitAreaChart(tw2.jit.AreaChart, RRDFlatMixin):
     data = twc.Variable("Internally produced.")
     type = 'stacked'
 
     def prepare(self):
-        self.data = self.fetch()
+        self.data = self.flat_fetch()
         labels = [ series['label'] for series in self.data ]
 
         values = [{ 'label' : datum[0], 'values' : [] }
@@ -163,10 +253,30 @@ class RRDJitAreaChart(tw2.jit.AreaChart, RRDMixin):
 
         self.data = { 'label' : labels, 'values' : values }
 
-        super(RRDJitAreaChart, self).prepare()
+        super(FlatRRDJitAreaChart, self).prepare()
+
+class NestedRRDJitBarChart(tw2.jit.BarChart, RRDNestedMixin):
+    data = twc.Variable("Internally produced.")
+
+    def prepare(self):
+        self.data = self.directory_fetch()
+        raise NotImplementedError
+
+        labels = [ series['label'] for series in self.data ]
+
+        values = [{ 'label' : datum[0], 'values' : [] }
+                  for datum in self.data[0]['data']]
+
+        for i in range(len(self.data)):
+            for j in range(len(self.data[0]['data'])):
+                values[j]['values'].append(self.data[i]['data'][j][1])
+
+        self.data = { 'label' : labels, 'values' : values }
+
+        super(NestedRRDJitBarChart, self).prepare()
 
 
-class RRDFlotWidget(tw2.jqplugins.flot.FlotWidget, RRDMixin):
+class FlatRRDFlotWidget(tw2.jqplugins.flot.FlotWidget, RRDFlatMixin):
     data = twc.Variable("Internally produced.")
 
     options = {
@@ -177,10 +287,10 @@ class RRDFlotWidget(tw2.jqplugins.flot.FlotWidget, RRDMixin):
 
     def prepare(self):
         # TODO -- can this be moved to post_define?
-        self.data = self.fetch()
-        super(RRDFlotWidget, self).prepare()
+        self.data = self.flat_fetch()
+        super(FlatRRDFlotWidget, self).prepare()
 
-class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
+class FlatRRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDFlatMixin):
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")
 
@@ -188,7 +298,7 @@ class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
     p_time_series_format = "%b %Y"
 
     def prepare(self):
-        data = self.fetch()
+        data = self.flat_fetch()
         self.p_labels = [d['label'] for d in data]
         self.p_data = [
             [
@@ -198,9 +308,9 @@ class RRDProtoLineChart(tw2.protovis.conventional.LineChart, RRDMixin):
                 } for d in series['data']
             ] for series in data
         ]
-        super(RRDProtoLineChart, self).prepare()
+        super(FlatRRDProtoLineChart, self).prepare()
 
-class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
+class FlatRRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDFlatMixin):
     series_sorter = twc.Param("function to compare to data points for sorting",
                               default=None)
     prune_zeroes = twc.Param("hide zero-valued series?", default=False)
@@ -211,7 +321,7 @@ class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
         default='average')
 
     def prepare(self):
-        data = self.fetch()
+        data = self.flat_fetch()
 
         if self.sort_data:
             data.sort(self.series_sorter)
@@ -232,9 +342,9 @@ class RRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDMixin):
                 for series in data
             ]
 
-        super(RRDProtoBarChart, self).prepare()
+        super(FlatRRDProtoBarChart, self).prepare()
 
-class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
+class FlatRRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDFlatMixin):
     series_sorter = twc.Param("function to compare to data points for sorting",
                               default=None)
     p_data = twc.Variable("Internally produced")
@@ -243,7 +353,7 @@ class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
         default='average')
 
     def prepare(self):
-        data = self.fetch()
+        data = self.flat_fetch()
 
         if self.sort_data:
             data.sort(self.series_sorter)
@@ -277,9 +387,10 @@ class RRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDMixin):
         # Remove all zero-valued bubbles!  (They don't make sense...)
         self.p_data = [d for d in self.p_data if d['value'] != 0]
 
-        super(RRDProtoBubbleChart, self).prepare()
+        super(FlatRRDProtoBubbleChart, self).prepare()
 
-class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMixin):
+class FlatRRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart,
+                                   RRDFlatMixin):
     p_data = twc.Variable("Internally produced")
     p_labels = twc.Variable("Internally produced")
 
@@ -287,7 +398,7 @@ class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMi
     p_time_series_format = "%b %Y"
 
     def prepare(self):
-        data = self.fetch()
+        data = self.flat_fetch()
         self.p_labels = [d['label'] for d in data]
         self.p_data = [
             [
@@ -298,16 +409,16 @@ class RRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart, RRDMi
             ] for series in data
         ]
 
-        super(RRDProtoStackedAreaChart, self).prepare()
+        super(FlatRRDProtoStackedAreaChart, self).prepare()
 
-class RRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDMixin):
+class FlatRRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDFlatMixin):
     """ TODO -- this guy needs a lot of work until he looks cool. """
 
     p_data = twc.Variable("Internally produced")
     logarithmic = twc.Param("Logscale?  Boolean!", default=False)
 
     def prepare(self):
-        data = self.fetch()
+        data = self.flat_fetch()
         self.p_data = [[item[1] for item in series['data']] for series in data]
         if self.logarithmic:
             self.p_data = [
@@ -315,4 +426,4 @@ class RRDStreamGraph(tw2.protovis.custom.StreamGraph, RRDMixin):
                     math.log(value+1) for value in series
                 ] for series in self.p_data
             ]
-        super(RRDStreamGraph, self).prepare()
+        super(FlatRRDStreamGraph, self).prepare()
