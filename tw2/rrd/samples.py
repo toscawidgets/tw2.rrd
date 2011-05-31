@@ -39,6 +39,42 @@ class DemoNestedRRDJitTreeMap(tw2.rrd.NestedRRDJitTreeMap):
         ]
     ]
 
+
+    Tips = {
+        'enable' : True,
+        'offsetX' : 20,
+        'offsetY' : 20,
+        'onShow' : twc.JSSymbol(src="""
+            (function(tip, node, isLeaf, domElement) {
+                   var html = '<div class="tip-title">' + node.name
+                     + '</div><div class="tip-text">';
+                   var data = node.data;
+                   if(data['$area']) {
+                     html += ' hits per second:  ' + data['$area'].toFixed(2);
+                   }
+                   tip.innerHTML =  html;
+            })
+            """)
+    }
+
+    onCreateLabel = twc.JSSymbol(src="""
+        (function(domElement, node){
+           domElement.innerHTML = node.name;
+           var style = domElement.style;
+           style.display = '';
+           style.border = '1px solid transparent';
+           style.color = '#000000';
+           domElement.onmouseover = function() {
+             style.border = '1px solid #9FD4FF';
+           };
+           domElement.onmouseout = function() {
+             style.border = '1px solid transparent';
+           };
+        } )
+        """)
+
+
+
 class DemoNestedRRDProtoCirclePackingWidget(
     tw2.rrd.NestedRRDProtoCirclePackingWidget):
 
