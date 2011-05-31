@@ -1,6 +1,7 @@
 import tw2.core as twc
 import tw2.core.util as util
 
+import tw2.jit
 import tw2.protovis.hierarchies
 
 import os
@@ -115,3 +116,64 @@ class NestedRRDProtoCirclePackingWidget(
                 del self.p_data[key]
 
         super(NestedRRDProtoCirclePackingWidget, self).prepare()
+
+class NestedRRDJitTreeMap(tw2.jit.TreeMap, RRDNestedMixin):
+    data = twc.Variable("Internally produced.")
+    method = twc.Param(
+        "Method for consolidating values.  Either 'sum' or 'average'",
+        default='average')
+
+    postInitJSCallback = twc.JSSymbol(
+        src="(function (jitwidget) { jitwidget.refresh(); })")
+
+
+    def make_from_nested(self, data):
+        res = []
+        for i in range(len(data)):
+            key1 = data[i]['label']
+            children = []
+            for j in range(len(data[i]['data'])):
+                key2 = data[i]['data'][j]['label']
+                value = sum([
+                    item[1] for item in data[i]['data'][j]['data']
+                ])
+
+                if self.method == 'average':
+                    value = float(value) / len(data[i]['data'][j]['data'])
+
+                if value == 0:
+                    continue
+
+                children.append({
+                    'id' : "%i-%i-%s-%s" % (i, j, key1, key2),
+                    'name' : key2,
+                    'children' : [],
+                    'data' : {
+                        '$area' : value,
+                    },
+                })
+
+            if not children:
+                continue
+
+            res.append({
+                'id' : "%s-%i" % (key1, i),
+                'name' : key1,
+                'children' : children,
+                'data' : {
+                    '$area' : sum([
+                        c['data']['$area'] for c in children
+                    ]),
+                },
+            })
+
+        return res
+
+    def prepare(self):
+        raw_data = self.nested_fetch()
+        self.data = {
+            'id' : 'root',
+            'name' : 'whutevah',
+            'children' : self.make_from_nested(raw_data),
+        }
+        super(NestedRRDJitTreeMap, self).prepare()
