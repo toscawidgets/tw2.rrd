@@ -16,7 +16,8 @@ echo "Detected arch $ARCH."
 
 for pth in $(find __xml__ -type f) ; do
         target=$(echo $pth | sed "s/__xml__/$ARCH/" | sed "s/.rrd.xml/.rrd/")
-        echo $pth to $target;
+        echo "Converting from $pth";
+        echo "             to      $target";
         rm -f $target;
         rrdtool restore $pth $target
 done
