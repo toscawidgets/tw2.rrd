@@ -11,6 +11,8 @@ class DemoNestedRRDJitTreeMap(tw2.rrd.NestedRRDJitTreeMap):
     start = datetime.datetime.fromtimestamp(1306557540)
     end = datetime.datetime.fromtimestamp(1306558380)
 
+    root_title = "Country versus Filename"
+
     rrd_directories = [
         data_directory + 'nested/filename/' + country
         for country in [

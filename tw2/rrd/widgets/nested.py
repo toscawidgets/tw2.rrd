@@ -122,6 +122,7 @@ class NestedRRDJitTreeMap(tw2.jit.TreeMap, RRDNestedMixin):
     method = twc.Param(
         "Method for consolidating values.  Either 'sum' or 'average'",
         default='average')
+    root_title = twc.Param("Root title", default=None)
 
     postInitJSCallback = twc.JSSymbol(
         src="(function (jitwidget) { jitwidget.refresh(); })")
@@ -170,10 +171,14 @@ class NestedRRDJitTreeMap(tw2.jit.TreeMap, RRDNestedMixin):
         return res
 
     def prepare(self):
+        if not self.root_title:
+            raise ValueError, "Root title is required."
+
         raw_data = self.nested_fetch()
+
         self.data = {
             'id' : 'root',
-            'name' : 'whutevah',
+            'name' : self.root_title,
             'children' : self.make_from_nested(raw_data),
         }
         super(NestedRRDJitTreeMap, self).prepare()
