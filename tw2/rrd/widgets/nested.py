@@ -145,30 +145,65 @@ class NestedRRDJitTreeMap(tw2.jit.TreeMap, RRDNestedMixin):
                 if value == 0:
                     continue
 
-                children.append({
-                    'id' : "%i-%i-%s-%s" % (i, j, key1, key2),
-                    'name' : key2,
-                    'children' : [],
-                    'data' : {
-                        '$area' : value,
-                    },
-                })
+                children.append(self.make_node(
+                    primary=key2,
+                    secondary=key1,
+                    value=value,
+                    children=[],
+                ))
 
             if not children:
                 continue
 
-            res.append({
-                'id' : "%s-%i" % (key1, i),
-                'name' : key1,
-                'children' : children,
-                'data' : {
-                    '$area' : sum([
+            res.append(
+                self.make_node(
+                    primary=key1,
+                    secondary=None,
+                    children=children,
+                    value=sum([
                         c['data']['$area'] for c in children
                     ]),
-                },
-            })
+                )
+            )
 
         return res
+
+    def make_color(self, value, _max, _min):
+        lower, upper = 0x025167 , 0x39AECF
+        x = float(value - _min)/(_max - _min)
+        color = (x * (upper - lower)) + lower
+        return "#%0.6x" % color
+
+    def add_colors(self, _max, _min):
+        for i in range(len(self.data['children'])):
+            for j in range(len(self.data['children'][i]['children'])):
+                self.data['children'][i]['children'][j]['data']['$color'] = \
+                        self.make_color(
+                            self.data['children'][i]['children'][j]['data']['$area'],
+                            _max, _min
+                        )
+
+    def find_bounds(self):
+        _min, _max = 10000000000, 0
+        for i in range(len(self.data['children'])):
+            for j in range(len(self.data['children'][i]['children'])):
+                v = self.data['children'][i]['children'][j]['data']['$area']
+                if v < _min:
+                    _min = v
+                if v > _max:
+                    _max = v
+
+        return _min, _max
+
+    def make_node(self, primary, secondary, value, children):
+        return {
+            'id' : str(primary) + "-" + str(secondary),
+            'name' : primary,
+            'children' : children,
+            'data' : {
+                '$area' : value,
+            },
+        }
 
     def prepare(self):
         if not self.root_title:
@@ -181,4 +216,6 @@ class NestedRRDJitTreeMap(tw2.jit.TreeMap, RRDNestedMixin):
             'name' : self.root_title,
             'children' : self.make_from_nested(raw_data),
         }
+        _min, _max = self.find_bounds()
+        self.add_colors(_max, _min)
         super(NestedRRDJitTreeMap, self).prepare()
