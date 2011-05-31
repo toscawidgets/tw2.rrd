@@ -5,6 +5,7 @@ import tw2.jit
 import tw2.jqplugins.flot
 import tw2.protovis.custom
 import tw2.protovis.conventional
+import tw2.protovis.hierarchies
 
 import pyrrd.rrd
 
@@ -48,11 +49,13 @@ class RRDBaseMixin(twc.Widget):
     @classmethod
     def directory2name(cls, dname):
         """ Convert a filename to an `attribute` name """
-        return dname.split('/')[-1]
+        name = dname.split('/')[-1]
+        if name == '':
+            name = dname.split('/')[-2]
+        return name
 
     @classmethod
     def _do_flat_fetch(cls, rrd_filenames):
-        ###print "doing work on:", rrd_filenames
         # Convert to seconds since the epoch
         end_s = int(time.mktime(cls.end.timetuple()))
         start_s = int(time.mktime(cls.start.timetuple()))
@@ -161,7 +164,6 @@ class RRDFlatMixin(RRDBaseMixin):
         # Now we can actually get the data.
         ###################################
 
-        ###print "Singleton...."
         return cls._do_flat_fetch(rrd_filenames)
 
 
@@ -174,7 +176,8 @@ class RRDNestedMixin(RRDBaseMixin):
             - A list of directories containing .rrd files.
         """)
 
-    def directory_fetch(self):
+    @classmethod
+    def nested_fetch(cls):
         cls.sanity()
 
         if type(cls.rrd_directories) != list:
@@ -188,7 +191,7 @@ class RRDNestedMixin(RRDBaseMixin):
             raise ValueError, "rrd_directories must be of homogeneous form"
 
         _type = types[0]
-        if not isinstance(_type, str):
+        if not _type in [str]:
             raise ValueError, "rrd_directories items must be 'str'"
 
         rrd_directories = cls.rrd_directories
@@ -219,11 +222,10 @@ class RRDNestedMixin(RRDBaseMixin):
 
         labels = [item[0] for item in rrd_directories]
         data = []
-        for directory in rrd_directories:
-            ###print "Nested:", dir
+        for name, directory in rrd_directories:
             rrd_filenames = [
-                directory + fname for fname in os.path.listdir(directory)
-                if fname.endswith('.rrd')
+                (cls.file2name(directory+fname), directory+fname)
+                for fname in os.listdir(directory) if fname.endswith('.rrd')
             ]
             data.append(cls._do_flat_fetch(rrd_filenames))
 
@@ -254,27 +256,6 @@ class FlatRRDJitAreaChart(tw2.jit.AreaChart, RRDFlatMixin):
         self.data = { 'label' : labels, 'values' : values }
 
         super(FlatRRDJitAreaChart, self).prepare()
-
-class NestedRRDJitBarChart(tw2.jit.BarChart, RRDNestedMixin):
-    data = twc.Variable("Internally produced.")
-
-    def prepare(self):
-        self.data = self.directory_fetch()
-        raise NotImplementedError
-
-        labels = [ series['label'] for series in self.data ]
-
-        values = [{ 'label' : datum[0], 'values' : [] }
-                  for datum in self.data[0]['data']]
-
-        for i in range(len(self.data)):
-            for j in range(len(self.data[0]['data'])):
-                values[j]['values'].append(self.data[i]['data'][j][1])
-
-        self.data = { 'label' : labels, 'values' : values }
-
-        super(NestedRRDJitBarChart, self).prepare()
-
 
 class FlatRRDFlotWidget(tw2.jqplugins.flot.FlotWidget, RRDFlatMixin):
     data = twc.Variable("Internally produced.")
@@ -323,7 +304,7 @@ class FlatRRDProtoBarChart(tw2.protovis.conventional.BarChart, RRDFlatMixin):
     def prepare(self):
         data = self.flat_fetch()
 
-        if self.sort_data:
+        if self.series_sorter:
             data.sort(self.series_sorter)
 
         if not self.method in ['sum', 'average']:
@@ -355,7 +336,7 @@ class FlatRRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDFlatMixin):
     def prepare(self):
         data = self.flat_fetch()
 
-        if self.sort_data:
+        if self.series_sorter:
             data.sort(self.series_sorter)
 
         if not self.method in ['sum', 'average']:
@@ -388,6 +369,45 @@ class FlatRRDProtoBubbleChart(tw2.protovis.custom.BubbleChart, RRDFlatMixin):
         self.p_data = [d for d in self.p_data if d['value'] != 0]
 
         super(FlatRRDProtoBubbleChart, self).prepare()
+
+class NestedRRDProtoCirclePackingWidget(
+    tw2.protovis.hierarchies.CirclePackingWidget, RRDNestedMixin):
+
+    p_data = twc.Variable("Internally produced.")
+    method = twc.Param(
+        "Method for consolidating values.  Either 'sum' or 'average'",
+        default='average')
+
+    def prepare(self):
+        if not self.method in ['sum', 'average']:
+            raise ValueError, "Illegal value '%s' for method" % self.method
+
+        self.data = self.nested_fetch()
+        self.p_data = {}
+
+        for i in range(len(self.data)):
+            key1 = self.data[i]['label']
+            self.p_data[key1] = {}
+            for j in range(len(self.data[i]['data'])):
+                key2 = self.data[i]['data'][j]['label']
+                value = sum([
+                    item[1] for item in self.data[i]['data'][j]['data']
+                ])
+
+                if self.method == 'average':
+                    value = float(value) / len(self.data[i]['data'][j]['data'])
+
+                if value == 0:
+                    continue
+
+                self.p_data[key1][key2] = value
+
+        for key in list(self.p_data.keys()):
+            if not self.p_data[key]:
+                del self.p_data[key]
+
+        super(NestedRRDProtoCirclePackingWidget, self).prepare()
+
 
 class FlatRRDProtoStackedAreaChart(tw2.protovis.conventional.StackedAreaChart,
                                    RRDFlatMixin):

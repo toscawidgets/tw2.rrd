@@ -5,9 +5,14 @@ import sys
 import datetime
 
 arch = ['32', '64'][sys.maxsize > 2**32]
-data_directory = '/'.join(__file__.split('/')[:-1] + ['data', arch])
+data_directory = '/'.join(__file__.split('/')[:-1] + ['data', arch]) + '/'
 
-class DemoNestedRRDJitBarChart(tw2.rrd.NestedRRDJitBarChart):
+class DemoNestedRRDProtoCirclePackingWidget(
+    tw2.rrd.NestedRRDProtoCirclePackingWidget):
+
+    start = datetime.datetime.fromtimestamp(1306557540)
+    end = datetime.datetime.fromtimestamp(1306558380)
+
     rrd_directories = [
         data_directory + 'nested/filename/' + country
         for country in [
