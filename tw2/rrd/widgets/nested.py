@@ -86,8 +86,12 @@ class NestedRRDProtoCirclePackingWidget(
     method = twc.Param(
         "Method for consolidating values.  Either 'sum' or 'average'",
         default='average')
+    root_title = twc.Param("Root title", default=None)
 
     def prepare(self):
+        if not self.root_title:
+            raise ValueError, "Root title is required."
+
         if not self.method in ['sum', 'average']:
             raise ValueError, "Illegal value '%s' for method" % self.method
 
