@@ -6,6 +6,11 @@ import pyrrd.rrd
 import datetime
 import time
 import math
+import os
+
+# Globals used to cache rrds
+_last_access = {}
+_data_cache = {}
 
 class RRDBaseMixin(twc.Widget):
     """ Baseclass for RRD Mixins.  Should not be used directly. """
@@ -62,17 +67,26 @@ class RRDBaseMixin(twc.Widget):
         end_s = end_s / resolution * resolution
 
         labels = [item[0] for item in rrd_filenames]
-        rrds = [pyrrd.rrd.RRD(item[1]) for item in rrd_filenames]
+        data = []
+        for label, filename in rrd_filenames:
+            stats = os.stat(filename)
+            if stats.st_mtime > _last_access.get(filename, 0):
+                # Query the round robin database
+                results = pyrrd.rrd.RRD(filename).fetch(
+                    cf=cls.consolidation_function,
+                    resolution=resolution,
+                    start=start_s,
+                    end=end_s
+                )[cls.datasource_name]
+                # Cache it
+                _data_cache[filename] = results
+                _last_access[filename] = time.time()
+            else:
+                # Just get it from the cache
+                results = _data_cache[filename]
 
-        # Query the round robin database
-        data = [
-            d.fetch(
-                cf=cls.consolidation_function,
-                resolution=resolution,
-                start=start_s,
-                end=end_s
-            )[cls.datasource_name] for d in rrds
-        ]
+            data.append(results)
+
 
         # Convert from 'nan' to 0.
         for i in range(len(data)):
