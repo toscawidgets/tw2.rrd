@@ -27,6 +27,8 @@ class RRDBaseMixin(twc.Widget):
         "rrdtool consolidation function to use.", default='AVERAGE')
     datasource_name = twc.Param(
         "rrdtool datasource name to use.", default='sum')
+    cache_data = twc.Param(
+        "Cache rrdfetch results in memory.", default=True)
 
     @classmethod
     def sanity(cls):
@@ -78,9 +80,11 @@ class RRDBaseMixin(twc.Widget):
                     start=start_s,
                     end=end_s
                 )[cls.datasource_name]
-                # Cache it
-                _data_cache[filename] = results
-                _last_access[filename] = time.time()
+
+                if cls.cache_data:
+                    # Cache it
+                    _data_cache[filename] = results
+                    _last_access[filename] = time.time()
             else:
                 # Just get it from the cache
                 results = _data_cache[filename]
