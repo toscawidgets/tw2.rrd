@@ -71,8 +71,12 @@ class RRDBaseMixin(twc.Widget):
         labels = [item[0] for item in rrd_filenames]
         data = []
         for label, filename in rrd_filenames:
+            timespan = end_s - start_s
+            cache_key = "%s:%i:%f:%s" % (
+                cls.consolidation_function, resolution, timespan, filename)
+
             stats = os.stat(filename)
-            if stats.st_mtime > _last_access.get(filename, 0):
+            if stats.st_mtime > _last_access.get(cache_key, 0):
                 # Query the round robin database
                 results = pyrrd.rrd.RRD(filename).fetch(
                     cf=cls.consolidation_function,
@@ -83,11 +87,11 @@ class RRDBaseMixin(twc.Widget):
 
                 if cls.cache_data:
                     # Cache it
-                    _data_cache[filename] = results
-                    _last_access[filename] = time.time()
+                    _data_cache[cache_key] = results
+                    _last_access[cache_key] = time.time()
             else:
                 # Just get it from the cache
-                results = _data_cache[filename]
+                results = _data_cache[cache_key]
 
             data.append(results)
 
