@@ -7,7 +7,7 @@ f.close()
 
 setup(
     name='tw2.rrd',
-    version='2.0b13',
+    version='2.0b14',
     description='tw2/rrdtool mashups!  plot your rrdtool data on the web',
     long_description=long_description,
     author='Ralph Bean',
