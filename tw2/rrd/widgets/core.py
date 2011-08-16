@@ -3,6 +3,7 @@ import tw2.core.util as util
 
 import pyrrd.rrd
 
+import calendar
 import datetime
 import time
 import math
@@ -68,6 +69,9 @@ class RRDBaseMixin(twc.Widget):
         start_s = start_s / resolution * resolution
         end_s = end_s / resolution * resolution
 
+        # Timezone offset in seconds at start time *including* DST
+        tz_offset = start_s - calendar.timegm(cls.start.timetuple())
+
         labels = [item[0] for item in rrd_filenames]
         data = []
         for label, filename in rrd_filenames:
@@ -113,8 +117,9 @@ class RRDBaseMixin(twc.Widget):
 
         # Coerce from seconds to milliseconds  Unix-time is in seconds.
         # *Most* javascript stuff expects milliseconds.
+        # Also subtract timezone offset in order to display the axis in local time.
         for i in range(len(data)):
-            data[i] = [(t*1000, v) for t, v in data[i]]
+            data[i] = [((t-tz_offset)*1000, v) for t, v in data[i]]
 
         # Wrap up the output into a list of dicts
         return [
