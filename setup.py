@@ -20,7 +20,9 @@ setup(
         "tw2.protovis.custom",
         "tw2.protovis.hierarchies",
         "tw2.jit",
-        "pyrrd",
+        # Constrain version due to the following bug
+        # http://code.google.com/p/pyrrd/issues/detail?id=26
+        "pyrrd<0.7.0",
     ],
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages = ['tw2'],
