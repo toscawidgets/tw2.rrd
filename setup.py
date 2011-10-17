@@ -7,7 +7,7 @@ f.close()
 
 setup(
     name='tw2.rrd',
-    version='2.0b15',
+    version='2.0b16',
     description='tw2/rrdtool mashups!  plot your rrdtool data on the web',
     long_description=long_description,
     author='Ralph Bean',
@@ -22,7 +22,7 @@ setup(
         "tw2.jit",
         # Constrain version due to the following bug
         # http://code.google.com/p/pyrrd/issues/detail?id=26
-        "pyrrd<0.7.0",
+        "pyrrd==0.0.7",
     ],
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages = ['tw2'],
