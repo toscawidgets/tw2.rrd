@@ -12,7 +12,7 @@ setup(
     long_description=long_description,
     author='Ralph Bean',
     author_email='ralph.bean@gmail.com',
-    url='',
+    url='http://github.com/toscawidgets/tw2.rrd',
     install_requires=[
         "tw2.jqplugins.jqplot",
         "tw2.jqplugins.flot",
