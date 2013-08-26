@@ -5,7 +5,20 @@ tw2.rrd
 
 .. comment: split here
 
-TODO -- documentation.  :)
+RRD (round-robin database) data visualization widgets.
+
+You can use the widgets in this module to analyze your data from rrdtool
+(usually collected by another tool like collectd or ganglia or.. well, there
+are many).
+
+Widgets, by and large, need to either be given a ``rrd_filenames`` list that
+tells them what rrd files to graph explicitly, or an ``rrd_directories`` list
+that tells them where to look for rrd files (they'll graph every file they find
+in the directory).
+
+Take a look at the `samples.py file
+<https://github.com/toscawidgets/tw2.rrd/blob/develop/tw2/rrd/samples.py>`_ for
+inspiration.
 
 Sampling tw2.rrd in the WidgetBrowser
 -------------------------------------
