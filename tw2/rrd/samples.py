@@ -110,6 +110,8 @@ class DemoNestedRRDProtoCirclePackingWidget(
     ]
 
 class DemoFlatRRDJitAreaChart(tw2.rrd.FlatRRDJitAreaChart):
+    start   = datetime.datetime.fromtimestamp(1280000000)
+    end     = datetime.datetime.fromtimestamp(1304000000)
     rrd_filenames = [
         data_directory + '/flat/cpu_user.rrd',
         data_directory + '/flat/cpu_wio.rrd',
@@ -138,6 +140,8 @@ class DemoFlatRRDJitAreaChart(tw2.rrd.FlatRRDJitAreaChart):
 
 
 class DemoFlatRRDFlotWidget(tw2.rrd.FlatRRDFlotWidget):
+    start   = datetime.datetime.fromtimestamp(1280000000)
+    end     = datetime.datetime.fromtimestamp(1304000000)
     rrd_filenames = [
         data_directory + '/flat/cpu_user.rrd',
         data_directory + '/flat/cpu_system.rrd',
@@ -145,6 +149,8 @@ class DemoFlatRRDFlotWidget(tw2.rrd.FlatRRDFlotWidget):
     ]
 
 class DemoFlatRRDProtoBarChart(tw2.rrd.FlatRRDProtoBarChart):
+    start   = datetime.datetime.fromtimestamp(1280000000)
+    end     = datetime.datetime.fromtimestamp(1304000000)
     rrd_filenames = [
         data_directory + '/flat/cpu_user.rrd',
         data_directory + '/flat/cpu_system.rrd',
@@ -160,6 +166,8 @@ class DemoFlatRRDProtoBarChart(tw2.rrd.FlatRRDProtoBarChart):
 
 
 class DemoFlatRRDProtoBubbleChart(tw2.rrd.FlatRRDProtoBubbleChart):
+    start   = datetime.datetime.fromtimestamp(1280000000)
+    end     = datetime.datetime.fromtimestamp(1304000000)
     rrd_filenames = [
         data_directory + '/flat/cpu_user.rrd',
         data_directory + '/flat/cpu_system.rrd',
@@ -170,6 +178,8 @@ class DemoFlatRRDProtoBubbleChart(tw2.rrd.FlatRRDProtoBubbleChart):
     series_sorter = lambda self, x, y : cmp(x['label'], y['label'])
 
 class DemoFlatRRDProtoLineChart(tw2.rrd.FlatRRDProtoLineChart):
+    start   = datetime.datetime.fromtimestamp(1280000000)
+    end     = datetime.datetime.fromtimestamp(1304000000)
     rrd_filenames = [
         data_directory + '/flat/cpu_user.rrd',
         data_directory + '/flat/cpu_system.rrd',
@@ -177,6 +187,8 @@ class DemoFlatRRDProtoLineChart(tw2.rrd.FlatRRDProtoLineChart):
     ]
 
 class DemoFlatRRDProtoStackedAreaChart(tw2.rrd.FlatRRDProtoStackedAreaChart):
+    start   = datetime.datetime.fromtimestamp(1280000000)
+    end     = datetime.datetime.fromtimestamp(1304000000)
     rrd_filenames = [
         data_directory + '/flat/cpu_user.rrd',
         data_directory + '/flat/cpu_system.rrd',
@@ -184,6 +196,8 @@ class DemoFlatRRDProtoStackedAreaChart(tw2.rrd.FlatRRDProtoStackedAreaChart):
     ]
 
 class DemoFlatRRDStreamGraph(tw2.rrd.FlatRRDStreamGraph):
+    start   = datetime.datetime.fromtimestamp(1280000000)
+    end     = datetime.datetime.fromtimestamp(1304000000)
     logarithmic = True
     rrd_filenames = [
         data_directory + '/flat/cpu_user.rrd',
